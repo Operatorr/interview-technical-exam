@@ -16,6 +16,7 @@ Execute the following steps:
     - Accurately describes the changes being committed
     - Focuses on the "why" rather than the "what"
     - Is 2-5 sentences
+    - Do NOT include any `Co-Authored-By` lines in the commit message
 
 4. Use a HEREDOC format for the commit message to ensure proper formatting
 5. Run `git status` after the commit to verify success
