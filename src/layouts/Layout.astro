@@ -17,9 +17,9 @@ const { title } = Astro.props;
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   </head>
-  <body class="font-sans antialiased">
+  <body class="font-body antialiased bg-cockpit-dark">
     <slot />
   </body>
 </html>
@@ -28,7 +28,13 @@ const { title } = Astro.props;
   @import "../styles/globals.css";
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0a0e17 0%, #111827 50%, #0a0e17 100%);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Mono', monospace;
   }
 
   code, pre {

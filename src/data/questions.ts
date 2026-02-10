@@ -28,10 +28,10 @@ export const phases: Phase[] = [
 
 export const sections = [
   { id: 'A', name: 'Time & Space Complexity', phase: 1, questions: [1, 10] },
-  { id: 'B', name: 'Data Structures', phase: 1, questions: [11, 20] },
-  { id: 'C', name: 'Algorithms', phase: 1, questions: [21, 30] },
-  { id: 'D', name: 'Design Patterns', phase: 1, questions: [31, 45] },
-  { id: 'E', name: 'System Design & Architecture', phase: 2, questions: [46, 55] },
+  { id: 'B', name: 'Data Structures', phase: 1, questions: [11, 25] },
+  { id: 'C', name: 'Algorithms', phase: 1, questions: [26, 40] },
+  { id: 'D', name: 'Design Patterns', phase: 1, questions: [41, 55] },
+  { id: 'E', name: 'System Design & Architecture', phase: 2, questions: [56, 65] },
 ];
 
 export const getPhaseForSection = (sectionId: string): Phase | undefined => {
@@ -219,7 +219,7 @@ export const questions: Question[] = [
     bobExample: 'Bob asks Alice a question. Alice asks Bob Jr. Bob Jr asks Carol... with 100 people in the chain. Each person has to remember who asked them (that\'s a stack frame). When Carol finally answers, the answer bubbles back up through all 100 people. That\'s O(n) space from recursion!',
   },
 
-  // Section B: Data Structures (Questions 11-20)
+  // Section B: Data Structures (Questions 11-25)
   {
     id: 11,
     section: 'B',
@@ -298,22 +298,22 @@ export const questions: Question[] = [
   {
     id: 16,
     section: 'B',
-    question: 'What is the main advantage of a hash map over a binary search tree?',
+    question: 'You need to store a list of tasks and frequently look up whether a specific task ID exists, but you also need to maintain the order in which tasks were added. Which data structure combination is most appropriate?',
     options: {
-      A: 'Hash maps maintain sorted order',
-      B: 'Hash maps have O(1) average-case lookup',
-      C: 'Hash maps use less memory',
-      D: 'Hash maps support range queries',
+      A: 'Array only',
+      B: 'Hash set only',
+      C: 'Hash map + array (or ordered dict)',
+      D: 'Stack only',
     },
-    correctAnswer: 'B',
-    explanation: 'Hash maps offer O(1) average lookup; BSTs offer O(log n). However, BSTs maintain sorted order and support range queries, which hash maps don\'t.',
-    studyTip: 'Hash map: O(1) lookup, no order. BST: O(log n) lookup, maintains order. Choose based on whether you need ordering.',
-    bobExample: 'Bob has 1,000 receipts and needs to find duplicates. Old way: compare each receipt to every other receipt = 500,000 comparisons (O(n²)). New way with a hash map: as Bob reads each receipt, he checks if he\'s seen this number before. Yes? Duplicate! No? File it. Just 1,000 operations — O(n)!',
+    correctAnswer: 'C',
+    explanation: 'An array alone gives O(n) lookup. A hash set gives O(1) lookup but loses insertion order. Combining a hash map with an array (or using an ordered dict like Python\'s dict) gives both O(1) lookup and preserved insertion order.',
+    studyTip: 'Real-world problems often need multiple properties — fast lookup AND ordering. Think about what each data structure gives you and what it lacks.',
+    bobExample: 'Bob manages a to-do list. He needs to quickly check "Is task #472 on the list?" (hash map: O(1)) AND display tasks in the order they were added (array preserves order). A hash set alone loses the order. An array alone is slow to search. Bob uses both together!',
   },
   {
     id: 17,
     section: 'B',
-    question: 'Which data structure would be best for checking if a string of parentheses is balanced?',
+    question: 'Which data structure would be best for checking if a string of parentheses like "((()))" is balanced — meaning every opening "(" has a matching closing ")" in the correct order?',
     options: {
       A: 'Queue',
       B: 'Stack',
@@ -371,9 +371,135 @@ export const questions: Question[] = [
     bobExample: 'Bob has a conga line of people holding hands. If he\'s standing next to the spot where someone needs to join, adding them is instant — just break one handhold and form two new ones. O(1)! But finding that spot first might take O(n) walking down the line.',
   },
 
-  // Section C: Algorithms (Questions 21-30)
   {
     id: 21,
+    section: 'B',
+    question: 'What data structure does the following class implement?',
+    code: `class MyStructure:
+    def __init__(self):
+        self.items = []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        return self.items.pop()
+
+    def peek(self):
+        return self.items[-1]
+
+    def is_empty(self):
+        return len(self.items) == 0`,
+    options: {
+      A: 'Queue',
+      B: 'Stack',
+      C: 'Linked List',
+      D: 'Heap',
+    },
+    correctAnswer: 'B',
+    explanation: 'The class implements a Stack (LIFO). The push() method adds to the top, pop() removes from the top (Python lists pop from the end by default), and peek() views the top element without removing it.',
+    studyTip: 'A Stack supports push (add to top), pop (remove from top), and peek (view top). Python lists work naturally as stacks since append() and pop() are both O(1).',
+  },
+  {
+    id: 22,
+    section: 'B',
+    question: 'What type of graph representation does this code build?',
+    code: `from collections import defaultdict
+
+def build_graph(edges):
+    graph = defaultdict(list)
+    for u, v in edges:
+        graph[u].append(v)
+        graph[v].append(u)
+    return graph`,
+    options: {
+      A: 'Directed adjacency matrix',
+      B: 'Undirected adjacency list',
+      C: 'Directed adjacency list',
+      D: 'Weighted adjacency matrix',
+    },
+    correctAnswer: 'B',
+    explanation: 'The code builds an undirected adjacency list. For each edge (u, v), both graph[u].append(v) and graph[v].append(u) are called, making the relationship bidirectional. Using defaultdict(list) creates a mapping from each node to its list of neighbors.',
+    studyTip: 'If the code only adds graph[u].append(v) (one direction), it\'s a directed graph. Adding both directions makes it undirected. defaultdict(list) is the idiomatic Python way to build adjacency lists.',
+  },
+  {
+    id: 23,
+    section: 'B',
+    question: 'What data structure behavior does this code demonstrate?',
+    code: `from collections import deque
+
+buffer = deque()
+buffer.append("task1")
+buffer.append("task2")
+buffer.append("task3")
+
+first = buffer.popleft()   # "task1"
+second = buffer.popleft()  # "task2"`,
+    options: {
+      A: 'Stack (LIFO)',
+      B: 'Queue (FIFO)',
+      C: 'Priority Queue',
+      D: 'Double-ended Queue used as a Stack',
+    },
+    correctAnswer: 'B',
+    explanation: 'The code demonstrates Queue (FIFO) behavior. Elements are added with append() (to the right end) and removed with popleft() (from the left end). The first item added ("task1") is the first removed — First In, First Out.',
+    studyTip: 'collections.deque is Python\'s go-to for queues. append() + popleft() gives FIFO (Queue). append() + pop() gives LIFO (Stack). Both operations are O(1) on a deque.',
+  },
+  {
+    id: 24,
+    section: 'B',
+    question: 'What key property does this insert function maintain?',
+    code: `class Node:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+def insert(root, val):
+    if root is None:
+        return Node(val)
+    if val < root.val:
+        root.left = insert(root.left, val)
+    else:
+        root.right = insert(root.right, val)
+    return root`,
+    options: {
+      A: 'AVL balance property (heights differ by at most 1)',
+      B: 'BST property (left < node < right)',
+      C: 'Max-heap property (parent >= children)',
+      D: 'Red-black tree color property',
+    },
+    correctAnswer: 'B',
+    explanation: 'The function maintains the Binary Search Tree (BST) property: all values in the left subtree are less than the node, and all values in the right subtree are greater than or equal to the node. It recursively places smaller values left and larger values right.',
+    studyTip: 'The BST property enables O(log n) search on balanced trees. The key insight is the comparison: val < root.val goes left, otherwise goes right. This is a classic recursive BST insertion.',
+  },
+  {
+    id: 25,
+    section: 'B',
+    question: 'What is the output of this code?',
+    code: `import heapq
+
+data = [5, 3, 8, 1, 2]
+heapq.heapify(data)
+
+result = []
+for _ in range(3):
+    result.append(heapq.heappop(data))
+print(result)`,
+    options: {
+      A: '[5, 3, 8]',
+      B: '[8, 5, 3]',
+      C: '[1, 2, 3]',
+      D: '[3, 2, 1]',
+    },
+    correctAnswer: 'C',
+    explanation: 'heapify() converts the list into a min-heap. heappop() always removes and returns the smallest element. Popping 3 times gives the 3 smallest elements in ascending order: [1, 2, 3].',
+    studyTip: 'Python\'s heapq module implements a min-heap. heapify() is O(n), and each heappop() is O(log n). To get a max-heap, negate the values or use nlargest().',
+  },
+
+  // Section C: Algorithms (Questions 26-40)
+  {
+    id: 26,
     section: 'C',
     question: 'Which algorithm is best suited for finding the shortest path in an unweighted graph?',
     options: {
@@ -388,7 +514,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is looking for his lost cat in a neighborhood. His strategy: first check all houses on his street, then all houses one block away, then two blocks away. He explores in "waves" outward. BFS guarantees Bob finds the SHORTEST path to his cat!',
   },
   {
-    id: 22,
+    id: 27,
     section: 'C',
     question: 'What type of problem is Dynamic Programming best suited for?',
     options: {
@@ -403,7 +529,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is climbing stairs and can take 1 or 2 steps at a time. How many ways to climb 5 stairs? He realizes: ways to reach step 5 = ways to reach step 4 + ways to reach step 3. But he keeps recalculating! So Bob writes down answers: ways[1]=1, ways[2]=2... That\'s DP: remember solutions!',
   },
   {
-    id: 23,
+    id: 28,
     section: 'C',
     question: 'Which traversal order visits the left subtree, then the root, then the right subtree?',
     options: {
@@ -418,7 +544,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is reading a family tree. Inorder means: visit all ancestors on the left, then the current person, then all ancestors on the right. For a BST, this gives everyone in alphabetical/sorted order!',
   },
   {
-    id: 24,
+    id: 29,
     section: 'C',
     question: 'What is the key requirement for using binary search?',
     options: {
@@ -433,7 +559,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is playing a guessing game, but the numbers are scrambled (not in order). "Is it 50?" "Higher!" But wait — 50 could be anywhere! Without sorted order, Bob can\'t eliminate anything. Binary search ONLY works on sorted data.',
   },
   {
-    id: 25,
+    id: 30,
     section: 'C',
     question: 'Which approach does DFS use for traversal?',
     options: {
@@ -448,7 +574,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is exploring a maze. His strategy: always turn right until you hit a dead end, then backtrack to the last intersection and try a different path. He goes as DEEP as possible before backtracking. That\'s DFS — and it naturally uses a stack (or recursion) to remember where to backtrack!',
   },
   {
-    id: 26,
+    id: 31,
     section: 'C',
     question: 'The Two-Pointer technique is most commonly used for:',
     options: {
@@ -463,7 +589,7 @@ export const questions: Question[] = [
     bobExample: 'Bob has a sorted row of jars with different amounts of candies. He needs to find two jars that together have exactly 100 candies. Instead of checking every pair, he puts one finger on the smallest jar and one on the largest. If the sum is too big, move right finger left. Too small, move left finger right. One pass!',
   },
   {
-    id: 27,
+    id: 32,
     section: 'C',
     question: 'What is the main difference between memoization and tabulation in Dynamic Programming?',
     options: {
@@ -478,7 +604,7 @@ export const questions: Question[] = [
     bobExample: 'Bob calculating Fibonacci. Memoization: "What\'s fib(5)? I need fib(4) and fib(3)..." — starts from the answer and works down, caching along the way. Tabulation: "fib(1)=1, fib(2)=1, fib(3)=2..." — builds from the bottom up, filling a table.',
   },
   {
-    id: 28,
+    id: 33,
     section: 'C',
     question: 'Which algorithm pattern is used to find all possible combinations or permutations?',
     options: {
@@ -493,7 +619,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is solving a maze. He tries one path. Dead end! He backtracks to the last intersection and tries another path. Backtracking is "try, fail, undo, try again" — it explores ALL possibilities by making choices and undoing them.',
   },
   {
-    id: 29,
+    id: 34,
     section: 'C',
     question: 'The Sliding Window technique is best used for:',
     options: {
@@ -508,7 +634,7 @@ export const questions: Question[] = [
     bobExample: 'Bob is a health inspector checking restaurants on a street. He needs to find which 5 consecutive restaurants have the most health violations combined. Instead of re-counting all 5 each time he moves, he keeps a running total: subtract the restaurant leaving the window, add the restaurant entering. One pass!',
   },
   {
-    id: 30,
+    id: 35,
     section: 'C',
     question: "What is the time complexity of detecting a cycle in a linked list using Floyd's algorithm (fast and slow pointers)?",
     options: {
@@ -523,9 +649,148 @@ export const questions: Question[] = [
     bobExample: 'Bob and his fast friend are running on a track. If the track is a loop, the fast friend will eventually lap Bob (they\'ll meet). If it\'s not a loop, the fast friend reaches the end. This is Floyd\'s algorithm: slow pointer moves 1 step, fast moves 2. If they meet, there\'s a cycle!',
   },
 
-  // Section D: Design Patterns (Questions 31-45) - EXPANDED to 15 questions covering 10 patterns
   {
-    id: 31,
+    id: 36,
+    section: 'C',
+    question: 'Which sorting algorithm does this code implement?',
+    code: `def mystery_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    mid = len(arr) // 2
+    left = mystery_sort(arr[:mid])
+    right = mystery_sort(arr[mid:])
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result`,
+    options: {
+      A: 'Quick Sort',
+      B: 'Merge Sort',
+      C: 'Heap Sort',
+      D: 'Insertion Sort',
+    },
+    correctAnswer: 'B',
+    explanation: 'This is Merge Sort. The key characteristics are: dividing the array at the midpoint (not using a pivot), recursively sorting both halves, and merging two sorted halves back together. Merge Sort is O(n log n) in all cases.',
+    studyTip: 'Merge Sort: split in half, sort each, merge. Quick Sort: pick pivot, partition, sort each side. Merge Sort guarantees O(n log n) but uses O(n) extra space.',
+  },
+  {
+    id: 37,
+    section: 'C',
+    question: 'What type of tree traversal does this code perform?',
+    code: `from collections import deque
+
+def traverse(root):
+    if not root:
+        return []
+    result = []
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result`,
+    options: {
+      A: 'Inorder (DFS)',
+      B: 'Preorder (DFS)',
+      C: 'Postorder (DFS)',
+      D: 'Level-order (BFS)',
+    },
+    correctAnswer: 'D',
+    explanation: 'This is level-order (BFS) traversal. The use of a queue (deque with popleft) processes nodes level by level: first the root, then all depth-1 nodes, then depth-2 nodes, and so on. DFS traversals use recursion or a stack instead.',
+    studyTip: 'Level-order = BFS on a tree. The queue ensures nodes are visited breadth-first. DFS traversals (inorder, preorder, postorder) use the call stack or an explicit stack.',
+  },
+  {
+    id: 38,
+    section: 'C',
+    question: 'Which Dynamic Programming technique does this Fibonacci implementation use?',
+    code: `def fib(n, memo={}):
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    memo[n] = fib(n - 1) + fib(n - 2)
+    return memo[n]`,
+    options: {
+      A: 'Tabulation (bottom-up DP)',
+      B: 'Memoization (top-down DP)',
+      C: 'Greedy approach',
+      D: 'Divide and conquer without DP',
+    },
+    correctAnswer: 'B',
+    explanation: 'This uses Memoization (top-down DP). The function starts from the desired value (top) and recursively breaks it into subproblems, caching results in the memo dictionary to avoid redundant calculations. Without memoization, this would be O(2^n); with it, it\'s O(n).',
+    studyTip: 'Memoization = recursion + cache (top-down). Tabulation = iterative loop filling a table (bottom-up). Both achieve the same O(n) complexity for Fibonacci but approach the problem differently.',
+  },
+  {
+    id: 39,
+    section: 'C',
+    question: 'What does this function return when called with the given arguments?',
+    code: `def search(arr, target):
+    left, right = 0, len(arr) - 1
+    steps = 0
+    while left <= right:
+        steps += 1
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return (mid, steps)
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return (-1, steps)
+
+result = search([2, 5, 8, 12, 16, 23, 38, 56, 72, 91], 23)
+print(result)`,
+    options: {
+      A: '(5, 2)',
+      B: '(5, 3)',
+      C: '(23, 5)',
+      D: '(4, 3)',
+    },
+    correctAnswer: 'B',
+    explanation: 'Binary search for 23 in [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]: Step 1: mid=4, arr[4]=16 < 23, go right. Step 2: mid=7, arr[7]=56 > 23, go left. Step 3: mid=5, arr[5]=23 = target, found! Returns (index=5, steps=3).',
+    studyTip: 'To trace binary search: track left, right, and mid at each step. The search space halves each time. For 10 elements, worst case is about 4 steps (log2 10).',
+  },
+  {
+    id: 40,
+    section: 'C',
+    question: 'Which algorithmic technique does this function use?',
+    code: `def max_sum_subarray(arr, k):
+    if len(arr) < k:
+        return None
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    for i in range(k, len(arr)):
+        window_sum += arr[i] - arr[i - k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum`,
+    options: {
+      A: 'Two Pointers',
+      B: 'Divide and Conquer',
+      C: 'Sliding Window',
+      D: 'Dynamic Programming',
+    },
+    correctAnswer: 'C',
+    explanation: 'This is the Sliding Window technique. The function maintains a fixed-size window of k elements, sliding it one position at a time by adding the new right element and subtracting the old left element. This finds the maximum sum subarray of size k in O(n) time instead of the naive O(n*k).',
+    studyTip: 'The Sliding Window technique is identified by: maintaining a window (fixed or variable size), adding new elements on one side, and removing from the other. It converts O(n*k) brute force into O(n).',
+  },
+
+  // Section D: Design Patterns (Questions 41-55)
+  {
+    id: 41,
     section: 'D',
     question: 'Which design pattern ensures that a class has only one instance and provides a global point of access to it?',
     options: {
@@ -540,7 +805,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s office has ONE printer shared by everyone. It would be chaos if every employee could create their own printer instance — they\'d fight over settings, jobs would conflict. Instead, there\'s a single printer that everyone accesses. That\'s Singleton: one instance, globally accessible.',
   },
   {
-    id: 32,
+    id: 42,
     section: 'D',
     question: 'You need to create different types of database connections (MySQL, PostgreSQL, MongoDB) based on configuration. Which pattern is most appropriate?',
     options: {
@@ -555,7 +820,7 @@ export const questions: Question[] = [
     bobExample: 'Bob runs a vehicle rental shop. Customers say "I need transportation" and Bob figures out whether to give them a car, motorcycle, or bicycle based on their needs. The customer doesn\'t need to know HOW to create a car — they just ask Bob\'s factory.',
   },
   {
-    id: 33,
+    id: 43,
     section: 'D',
     question: "Which design pattern allows you to change an object's behavior at runtime by swapping its algorithm?",
     options: {
@@ -570,7 +835,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s restaurant calculates bills differently for different customers. Regular customers pay full price. Members get 10% off. VIP members get 20% off. Instead of giant if-else statements, Bob creates separate "pricing calculators" and swaps them based on customer type. That\'s Strategy!',
   },
   {
-    id: 34,
+    id: 44,
     section: 'D',
     question: "You're building a notification system where multiple services (email, SMS, push) need to react when a new order is placed. Which pattern fits best?",
     options: {
@@ -585,7 +850,7 @@ export const questions: Question[] = [
     bobExample: 'Bob publishes a newsletter. Subscribers sign up and get notified whenever Bob publishes something new. Bob doesn\'t know who his subscribers are or what they do with the newsletter — some read it, some archive it, some share it. He just broadcasts, and everyone who signed up reacts. That\'s Observer!',
   },
   {
-    id: 35,
+    id: 45,
     section: 'D',
     question: 'Which design pattern is best for constructing complex objects with many optional parameters?',
     options: {
@@ -600,7 +865,7 @@ export const questions: Question[] = [
     bobExample: 'Bob orders a custom sandwich. Instead of a form with 20 fields (bread type, cheese, meat, veggies, sauce, toasted?...), he tells the sandwich artist step by step: "Start with wheat bread. Add turkey. Add swiss cheese. Toast it. Done!" That\'s Builder — step-by-step construction.',
   },
   {
-    id: 36,
+    id: 46,
     section: 'D',
     question: 'In the Strategy pattern, what is the relationship between the context and the strategy?',
     options: {
@@ -615,14 +880,14 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s restaurant (the context) has a pricing calculator slot. He can plug in RegularPricing, MemberPricing, or VIPPricing (strategies). The restaurant doesn\'t know HOW prices are calculated — it just asks whatever strategy is plugged in. Swap strategies anytime!',
   },
   {
-    id: 37,
+    id: 47,
     section: 'D',
     question: 'Which pattern would you use to add new functionality to an object dynamically without changing its class?',
     options: {
-      A: 'Factory',
+      A: 'Proxy',
       B: 'Decorator',
-      C: 'Singleton',
-      D: 'Observer',
+      C: 'Strategy',
+      D: 'Adapter',
     },
     correctAnswer: 'B',
     explanation: 'Decorator wraps an object to add behavior without modifying its class. You can stack decorators for multiple behaviors.',
@@ -630,7 +895,7 @@ export const questions: Question[] = [
     bobExample: 'Bob has a basic coffee ($2). He wants to add milk (+$0.50) and whipped cream (+$0.75). Instead of creating "CoffeeWithMilkAndWhippedCream" class, he wraps: WhippedCream(Milk(Coffee())). Each wrapper adds its cost. Decorators let you stack functionality!',
   },
   {
-    id: 38,
+    id: 48,
     section: 'D',
     question: 'A configuration manager that loads settings once and is accessed throughout the application is an example of which pattern?',
     options: {
@@ -645,7 +910,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s company has ONE official rulebook. Every department refers to the same rulebook — they don\'t each make their own copy that might drift apart. When HR updates a policy, everyone sees the same update. That\'s Singleton: one instance, shared by all.',
   },
   {
-    id: 39,
+    id: 49,
     section: 'D',
     question: 'Which statement best describes the Factory pattern?',
     options: {
@@ -660,7 +925,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s pizza shop takes orders: "I want a pepperoni pizza." Bob doesn\'t explain how he makes it — he just returns a finished pizza. The customer (client) doesn\'t know about PepperoniPizza class, dough preparation, or oven temperature. Factory hides the creation complexity.',
   },
   {
-    id: 40,
+    id: 50,
     section: 'D',
     question: 'You have different pricing strategies (regular, member, premium) that can be applied to bookings. Which pattern allows switching between these at runtime?',
     options: {
@@ -675,7 +940,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s hotel booking system needs different pricing: regular guests pay rack rate, members get 10% off, VIPs get 20% off plus free breakfast. Instead of if-else chains, Bob plugs in different pricing strategies. When a VIP books, swap to VIPPricingStrategy. Clean and extensible!',
   },
   {
-    id: 41,
+    id: 51,
     section: 'D',
     question: 'Which pattern provides a simplified interface to a complex subsystem of classes?',
     options: {
@@ -690,14 +955,14 @@ export const questions: Question[] = [
     bobExample: 'Bob wants to watch a movie at home. Without a facade, he\'d need to: turn on TV, turn on amplifier, turn on DVD player, set input sources, dim lights... With a "HomeTheaterFacade", Bob just calls watchMovie() and it handles everything. Facade simplifies complex subsystems!',
   },
   {
-    id: 42,
+    id: 52,
     section: 'D',
     question: 'You have a class with an incompatible interface that needs to work with your existing code. Which pattern should you use?',
     options: {
       A: 'Adapter',
       B: 'Facade',
-      C: 'Strategy',
-      D: 'Builder',
+      C: 'Proxy',
+      D: 'Decorator',
     },
     correctAnswer: 'A',
     explanation: 'Adapter converts one interface to another. It allows incompatible classes to work together by wrapping one with a compatible interface.',
@@ -705,7 +970,7 @@ export const questions: Question[] = [
     bobExample: 'Bob has a European laptop charger but US outlets. He uses an adapter — it doesn\'t change what the charger does, it just makes it compatible with US outlets. Similarly, an Adapter pattern wraps an incompatible class to make it work with your code.',
   },
   {
-    id: 43,
+    id: 53,
     section: 'D',
     question: 'Which pattern controls access to an object, potentially adding security checks, lazy loading, or logging?',
     options: {
@@ -720,7 +985,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s bank has a vault (the real object). You don\'t access the vault directly — you go through a bank teller (proxy) who checks your ID, logs the transaction, and only then opens the vault. Proxy controls access to the real object.',
   },
   {
-    id: 44,
+    id: 54,
     section: 'D',
     question: 'Which pattern defines the skeleton of an algorithm, letting subclasses override specific steps without changing the algorithm\'s structure?',
     options: {
@@ -735,7 +1000,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s coffee shop has a template for making drinks: boil water → brew → pour → add condiments. For tea, "brew" steeps tea leaves. For coffee, "brew" drips through grounds. The template (steps order) is fixed, but subclasses customize specific steps. That\'s Template Method!',
   },
   {
-    id: 45,
+    id: 55,
     section: 'D',
     question: 'You want to add logging to every method call in a service class without modifying the original class. Which pattern combination would work best?',
     options: {
@@ -750,16 +1015,16 @@ export const questions: Question[] = [
     bobExample: 'Bob wants every warehouse access logged without changing the warehouse code. He creates a LoggingProxy that wraps the warehouse: every time someone calls getItem(), the proxy logs "User X accessed item Y" then calls the real warehouse. The original class is unchanged!',
   },
 
-  // Section E: System Design & Architecture (Questions 46-55)
+  // Section E: System Design & Architecture (Questions 56-65)
   {
-    id: 46,
+    id: 56,
     section: 'E',
     question: 'Which scaling approach involves adding more machines to handle increased load?',
     options: {
       A: 'Vertical scaling',
       B: 'Horizontal scaling',
-      C: 'Diagonal scaling',
-      D: 'Exponential scaling',
+      C: 'Load balancing',
+      D: 'Database replication',
     },
     correctAnswer: 'B',
     explanation: 'Horizontal scaling adds more machines; vertical scaling adds more power to one machine. Horizontal is more complex but virtually unlimited.',
@@ -767,7 +1032,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s pizza shop is overwhelmed. Vertical scaling: Bob buys a bigger oven (more power, but there\'s a limit). Horizontal scaling: Bob opens more locations. Each has its own oven. Unlimited scaling, but now he needs to coordinate across locations!',
   },
   {
-    id: 47,
+    id: 57,
     section: 'E',
     question: 'What is the primary purpose of a load balancer?',
     options: {
@@ -782,14 +1047,14 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s call center has 5 operators. Without coordination, all calls might go to operator 1 while others sit idle. A load balancer is like a receptionist who distributes calls: "Operator 1, you take this one. Operator 2, you take the next..."',
   },
   {
-    id: 48,
+    id: 58,
     section: 'E',
     question: 'In the Cache-Aside pattern, what happens on a cache miss?',
     options: {
-      A: 'Return null to the client',
+      A: 'Fetch from database and return without updating the cache',
       B: 'Fetch from database, store in cache, then return',
       C: 'The cache automatically fetches from the database',
-      D: 'Retry the cache lookup',
+      D: 'The request is queued until a background process populates the cache',
     },
     correctAnswer: 'B',
     explanation: 'Cache-Aside: on miss, the application fetches from DB, stores in cache, returns to client. Application controls the caching logic.',
@@ -797,7 +1062,7 @@ export const questions: Question[] = [
     bobExample: 'Bob runs a library. When someone asks for a book, he checks his desk shelf (cache) first. Not there? He walks to the warehouse (database), gets it, puts a copy on his shelf for next time, and gives it to the customer. That\'s Cache-Aside!',
   },
   {
-    id: 49,
+    id: 59,
     section: 'E',
     question: 'Which caching strategy writes data to the cache and database simultaneously?',
     options: {
@@ -812,14 +1077,14 @@ export const questions: Question[] = [
     bobExample: 'Bob updates his inventory. Write-Through: he updates both his quick-reference notepad (cache) AND the master ledger (database) at the same time. Slower, but both are always in sync. Write-Behind would update notepad first, ledger later.',
   },
   {
-    id: 50,
+    id: 60,
     section: 'E',
     question: 'What is the main advantage of database read replicas?',
     options: {
-      A: 'They increase write throughput',
+      A: 'They allow distributing write operations across multiple nodes',
       B: 'They increase read throughput by distributing read queries',
-      C: 'They reduce storage costs',
-      D: 'They eliminate the need for caching',
+      C: 'They ensure strong consistency across all database nodes',
+      D: 'They automatically partition data across multiple servers',
     },
     correctAnswer: 'B',
     explanation: 'Read replicas handle read queries, freeing the primary for writes. Great for read-heavy workloads (most web applications).',
@@ -827,7 +1092,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s library is popular. One librarian (primary database) handles all requests. Overwhelmed! So Bob hires assistant librarians (replicas) who maintain copies of the catalog. Customers can ASK any assistant for book info (reads), but only the main librarian can UPDATE the catalog (writes).',
   },
   {
-    id: 51,
+    id: 61,
     section: 'E',
     question: 'Which HTTP status code indicates that the client sent an invalid request?',
     options: {
@@ -842,7 +1107,7 @@ export const questions: Question[] = [
     bobExample: 'Bob orders at a restaurant. 200: "Here\'s your food!" 400: "Sir, that\'s not a valid menu item" (your fault). 404: "We don\'t have that dish" (doesn\'t exist). 500: "Sorry, kitchen caught fire" (our fault). 400 = client made a bad request.',
   },
   {
-    id: 52,
+    id: 62,
     section: 'E',
     question: 'In RESTful API design, which HTTP method should be used to update an existing resource?',
     options: {
@@ -857,14 +1122,14 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s hotel API: GET /rooms/123 = view room. POST /rooms = create room. PUT /rooms/123 = replace all room info. PATCH /rooms/123 = update just the price. DELETE /rooms/123 = remove room. PUT/PATCH are for updates!',
   },
   {
-    id: 53,
+    id: 63,
     section: 'E',
     question: 'What is database sharding?',
     options: {
-      A: 'Creating backup copies of the database',
+      A: 'Replicating the entire database across multiple servers for redundancy',
       B: 'Splitting data across multiple databases based on a shard key',
-      C: 'Caching database queries',
-      D: 'Encrypting database contents',
+      C: 'Partitioning tables within a single database server for faster queries',
+      D: 'Creating read-only copies of the primary database for scaling reads',
     },
     correctAnswer: 'B',
     explanation: 'Sharding splits data across databases using a shard key (e.g., user_id % 4). Enables write scaling but complicates cross-shard queries.',
@@ -872,14 +1137,14 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s library has 1 million books. Too big for one building! Solution: Building A has A-M authors, Building B has N-Z. When someone asks for a book, Bob first determines which building based on author, then asks that building\'s librarian. That\'s sharding!',
   },
   {
-    id: 54,
+    id: 64,
     section: 'E',
     question: 'Which rate limiting algorithm allows controlled bursts of traffic while maintaining an average rate?',
     options: {
       A: 'Fixed Window',
       B: 'Token Bucket',
-      C: 'Simple Counter',
-      D: 'Random Sampling',
+      C: 'Leaky Bucket',
+      D: 'Sliding Window Log',
     },
     correctAnswer: 'B',
     explanation: 'Token Bucket allows bursts while maintaining average rate over time. Tokens accumulate and are consumed per request; burst size = bucket size.',
@@ -887,7 +1152,7 @@ export const questions: Question[] = [
     bobExample: 'Bob\'s bakery can make 100 cookies per hour. Token Bucket: customers get tokens over time; each request costs a token. If you\'ve been saving tokens, you can order a burst. If you\'re out, wait. This allows bursts while enforcing average limits.',
   },
   {
-    id: 55,
+    id: 65,
     section: 'E',
     question: 'What is the main trade-off when using eventual consistency instead of strong consistency?',
     options: {
