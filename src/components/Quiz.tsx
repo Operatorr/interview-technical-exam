@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { questions, sections, phases, getSectionName, type Question } from '../data/questions';
 import { cn } from '../lib/utils';
 import Prism from 'prismjs';
@@ -16,7 +16,8 @@ import {
   Play,
   Clock,
   HelpCircle,
-  FileText
+  FileText,
+  Award
 } from 'lucide-react';
 
 interface QuizState {
@@ -43,6 +44,8 @@ export default function Quiz() {
   const [state, setState] = useState<QuizState>(defaultState);
   const [hydrated, setHydrated] = useState(false);
   const [, setTick] = useState(0);
+  const [justAnswered, setJustAnswered] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (state.quizStatus !== 'in-progress') return;
@@ -81,6 +84,27 @@ export default function Quiz() {
     }
   }, [state, hydrated]);
 
+  // Scroll to top when navigating to a different question
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'instant' : 'smooth' });
+  }, [state.currentIndex]);
+
+  // Auto-scroll to feedback when user just answered
+  useEffect(() => {
+    if (!justAnswered || !state.showResult[questions[state.currentIndex]?.id]) return;
+    const timer = setTimeout(() => {
+      if (feedbackRef.current) {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        feedbackRef.current.scrollIntoView({
+          behavior: prefersReducedMotion ? 'instant' : 'smooth',
+          block: 'start',
+        });
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [justAnswered, state.showResult, state.currentIndex]);
+
   const currentQuestion = questions[state.currentIndex];
   const selectedAnswer = state.answers[currentQuestion.id];
   const showingResult = state.showResult[currentQuestion.id];
@@ -89,6 +113,7 @@ export default function Quiz() {
   const handleSelectAnswer = (answer: 'A' | 'B' | 'C' | 'D') => {
     if (showingResult) return;
 
+    setJustAnswered(true);
     setState(prev => ({
       ...prev,
       answers: { ...prev.answers, [currentQuestion.id]: answer },
@@ -97,6 +122,7 @@ export default function Quiz() {
   };
 
   const handleNext = () => {
+    setJustAnswered(false);
     if (state.currentIndex < questions.length - 1) {
       setState(prev => ({ ...prev, currentIndex: prev.currentIndex + 1 }));
     } else {
@@ -105,6 +131,7 @@ export default function Quiz() {
   };
 
   const handlePrevious = () => {
+    setJustAnswered(false);
     if (state.currentIndex > 0) {
       setState(prev => ({ ...prev, currentIndex: prev.currentIndex - 1 }));
     }
@@ -129,6 +156,7 @@ export default function Quiz() {
   };
 
   const handleGoToQuestion = (index: number) => {
+    setJustAnswered(false);
     setState(prev => ({ ...prev, currentIndex: index, completed: false }));
   };
 
@@ -245,6 +273,32 @@ export default function Quiz() {
     } else {
       performanceLevel = 'More study needed - Review the Essential Study Guide thoroughly';
       performanceColor = 'text-neon-red';
+    }
+
+    let icLevel = '';
+    let icTitle = '';
+    let icDescription = '';
+    let icColor = '';
+    if (percentage >= 85) {
+      icLevel = 'IC4';
+      icTitle = 'Staff Engineer';
+      icDescription = 'Comprehensive mastery across DSA, design patterns, and system architecture. Ready for staff-level technical challenges.';
+      icColor = 'text-neon-green';
+    } else if (percentage >= 65) {
+      icLevel = 'IC3';
+      icTitle = 'Senior Engineer';
+      icDescription = 'Strong technical foundation with solid understanding of patterns and system design. Minor gaps to address in weaker sections.';
+      icColor = 'text-cyan-400';
+    } else if (percentage >= 35) {
+      icLevel = 'IC2';
+      icTitle = 'Mid-Level Engineer';
+      icDescription = 'Good grasp of fundamentals. Focus on design patterns and system design concepts to progress to senior level.';
+      icColor = 'text-amber-400';
+    } else {
+      icLevel = 'IC1';
+      icTitle = 'Junior Engineer';
+      icDescription = 'Building foundational knowledge. Review core data structures, algorithms, and complexity analysis.';
+      icColor = 'text-neon-red';
     }
 
     return (
@@ -405,6 +459,28 @@ export default function Quiz() {
             </div>
           </div>
 
+          {/* IC Level Assessment */}
+          <div className="glass rounded-2xl p-8 mb-8">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-6 font-heading">
+              <Award className="w-5 h-5 text-amber-500" aria-hidden="true" />
+              Assessed IC Level
+            </h2>
+            <div className="text-center">
+              <div className={cn("text-6xl font-bold font-heading mb-2", icColor)}>
+                {icLevel}
+              </div>
+              <div className={cn("text-xl font-semibold mb-4", icColor)}>
+                {icTitle}
+              </div>
+              <p className="text-muted-foreground max-w-lg mx-auto mb-4">
+                {icDescription}
+              </p>
+              <p className="text-sm text-muted-foreground/70">
+                Based on {totalCorrect}/{total} correct ({percentage}%)
+              </p>
+            </div>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex justify-center gap-4">
             <button
@@ -458,7 +534,7 @@ export default function Quiz() {
       </header>
 
       {/* Main Content */}
-      <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className={cn("max-w-5xl mx-auto px-4 py-8", showingResult && "pb-24")}>
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Question Panel */}
           <div className="lg:col-span-2">
@@ -560,7 +636,10 @@ export default function Quiz() {
 
                 {/* Feedback Section */}
                 {showingResult && (
-                  <div className={cn(
+                  <div
+                    ref={feedbackRef}
+                    style={{ scrollMarginTop: '6rem' }}
+                    className={cn(
                     "mt-6 p-6 rounded-xl border-l-4",
                     isCorrect
                       ? "border-l-neon-green bg-neon-green/[0.05] border border-neon-green/10"
@@ -721,6 +800,43 @@ export default function Quiz() {
           </div>
         </div>
       </main>
+
+      {/* Sticky Bottom Bar */}
+      {showingResult && (
+        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-amber-500/20 backdrop-blur-xl bg-cockpit-dark/80 animate-fade-slide-up">
+          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isCorrect ? (
+                <CheckCircle2 className="w-5 h-5 text-neon-green" aria-hidden="true" />
+              ) : (
+                <XCircle className="w-5 h-5 text-neon-red" aria-hidden="true" />
+              )}
+              <span className={cn("font-medium text-sm", isCorrect ? "text-neon-green" : "text-neon-red")}>
+                {isCorrect ? "Correct!" : "Incorrect"}
+              </span>
+              <span className="text-muted-foreground text-sm hidden sm:inline">
+                {state.currentIndex + 1} of {questions.length}
+              </span>
+            </div>
+            <button
+              onClick={handleNext}
+              className="inline-flex items-center gap-2 px-5 py-2 bg-amber-500 text-cockpit-dark rounded-lg font-medium hover:bg-amber-400 transition-colors glow-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cockpit-dark"
+            >
+              {state.currentIndex === questions.length - 1 ? (
+                <>
+                  View Results
+                  <Trophy className="w-4 h-4" aria-hidden="true" />
+                </>
+              ) : (
+                <>
+                  Next Question
+                  <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

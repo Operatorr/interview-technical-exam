@@ -71,6 +71,7 @@ export default {
         'score-reveal': 'scoreReveal 1s ease-out forwards',
         'ring-glow': 'ringGlow 2s ease-in-out infinite',
         'progress-glow': 'progressGlow 2s ease-in-out infinite',
+        'fade-slide-up': 'fadeSlideUp 0.3s ease-out',
       },
       keyframes: {
         fadeSlideIn: {
@@ -92,6 +93,10 @@ export default {
         progressGlow: {
           '0%, 100%': { boxShadow: '0 0 4px rgba(245,158,11,0.3)' },
           '50%': { boxShadow: '0 0 12px rgba(245,158,11,0.5)' },
+        },
+        fadeSlideUp: {
+          '0%': { opacity: '0', transform: 'translateY(100%)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },
