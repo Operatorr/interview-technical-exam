@@ -45,6 +45,7 @@ export default function Quiz() {
   const [hydrated, setHydrated] = useState(false);
   const [, setTick] = useState(0);
   const [justAnswered, setJustAnswered] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const feedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,6 +84,26 @@ export default function Quiz() {
       // localStorage unavailable (e.g. private browsing quota exceeded)
     }
   }, [state, hydrated]);
+
+  // Send results email on completion
+  useEffect(() => {
+    if (!hydrated || !state.completed || state.quizStatus !== 'completed') return;
+    if (emailStatus !== 'idle') return;
+
+    setEmailStatus('sending');
+    fetch('/api/send-results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers: state.answers, startTime: state.startTime }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setEmailStatus(data.success ? 'sent' : 'error');
+      })
+      .catch(() => {
+        setEmailStatus('error');
+      });
+  }, [hydrated, state.completed, state.quizStatus]);
 
   // Scroll to top when navigating to a different question
   useEffect(() => {
@@ -311,6 +332,15 @@ export default function Quiz() {
             </div>
             <h1 className="text-3xl font-bold text-foreground font-heading mb-2">Assessment Complete!</h1>
             <p className="text-muted-foreground">Here's how you performed on the Technical Assessment</p>
+            {emailStatus === 'sending' && (
+              <p className="text-sm text-amber-400 mt-2 animate-pulse">Sending results...</p>
+            )}
+            {emailStatus === 'sent' && (
+              <p className="text-sm text-neon-green mt-2">Results emailed!</p>
+            )}
+            {emailStatus === 'error' && (
+              <p className="text-sm text-neon-red mt-2">Failed to send email</p>
+            )}
           </div>
 
           {/* Main Score Card */}
