@@ -103,21 +103,18 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    // Build per-question review HTML
-    let reviewHtml = '';
-    questions.forEach((q, i) => {
-      const userAnswer = answers[q.id];
-      const correct = userAnswer === q.correctAnswer;
-      const icon = correct ? '&#9989;' : '&#10060;';
-      const bgColor = correct ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)';
-      const borderColor = correct ? '#22c55e' : '#ef4444';
-
-      reviewHtml += `
-      <div style="padding:10px 14px;margin-bottom:4px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:4px;">
-        <span style="color:#ccc;">${icon} <strong>Q${q.id}</strong>: ${escapeHtml(q.question.substring(0, 80))}${q.question.length > 80 ? '...' : ''}</span><br/>
-        <span style="font-size:12px;color:#999;">Your answer: <strong>${userAnswer || 'None'}</strong> | Correct: <strong>${q.correctAnswer}</strong></span>
-      </div>`;
+    // Build compact answer grid HTML
+    let reviewHtml = '<div style="line-height:0;font-size:0;">';
+    questions.forEach(q => {
+      const correct = answers[q.id] === q.correctAnswer;
+      const bg = correct ? '#22c55e' : '#ef4444';
+      reviewHtml += `<div style="display:inline-block;width:32px;height:32px;margin:2px;background:${bg};border-radius:4px;text-align:center;line-height:32px;font-size:11px;font-weight:600;color:#fff;">${q.id}</div>`;
     });
+    reviewHtml += '</div>';
+    reviewHtml += `<div style="margin-top:12px;font-size:13px;color:#94a3b8;">
+      <span style="display:inline-block;width:12px;height:12px;background:#22c55e;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Correct
+      <span style="display:inline-block;width:12px;height:12px;background:#ef4444;border-radius:2px;vertical-align:middle;margin-left:12px;margin-right:4px;"></span> Incorrect
+    </div>`;
 
     const scoreColor = percentage >= 80 ? '#22c55e' : percentage >= 60 ? '#f59e0b' : '#ef4444';
     const icColor = icLevel === 'IC4' ? '#22c55e' : icLevel === 'IC3' ? '#06b6d4' : icLevel === 'IC2' ? '#f59e0b' : '#ef4444';
@@ -161,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
     </div>`;
 
     const { error } = await resend.emails.send({
-      from: 'Technical Assessment <onboarding@resend.dev>',
+      from: 'Technical Assessment <noreply@widing.dev>',
       to: RECIPIENT_EMAIL,
       subject: `Assessment Results: ${percentage}% (${icLevel} - ${icTitle})`,
       html,
@@ -185,11 +182,3 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 };
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
