@@ -6,6 +6,7 @@ import { questions, sections, phases, type Question } from '../../data/questions
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 const RECIPIENT_EMAIL = import.meta.env.RECIPIENT_EMAIL;
+const FROM_EMAIL = import.meta.env.FROM_EMAIL;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -158,7 +159,7 @@ export const POST: APIRoute = async ({ request }) => {
     </div>`;
 
     const { error } = await resend.emails.send({
-      from: 'Technical Assessment <noreply@widing.dev>',
+      from: FROM_EMAIL,
       to: RECIPIENT_EMAIL,
       subject: `Assessment Results: ${percentage}% (${icLevel} - ${icTitle})`,
       html,
